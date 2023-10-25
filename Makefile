@@ -1,6 +1,9 @@
 #Makefile
 
-all: test
+all: test data
+
+data :
+	mkdir ./data
 
 test: main.c model.c
 	gcc main.c model.c -o test
@@ -8,5 +11,5 @@ test: main.c model.c
 clean:
 	rm -f *.o
 	rm -f test
-	rm -f ./data/*.txt
+	rm -f -r ./data
 
