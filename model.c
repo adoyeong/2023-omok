@@ -34,9 +34,10 @@ int data_read()
 	fclose(file);
 	return 0;
 }
-int log_write(int r, int c, double prob)
+int log_write(int r, int c, double prob, int state[])
 {
-	FILE *file = fopen("log.txt", "a");
+	int i;
+	FILE *file = fopen("./data/log.txt", "a");
 	if(file == NULL)
 	{
 		perror("Cannot open file(log.txt)");
@@ -44,7 +45,9 @@ int log_write(int r, int c, double prob)
 	}
 	else
 	{
-		fprintf(file, "%d %d %.2lf\n", r, c, prob);
+		fprintf(file, "%2d %2d %.2lf ", r, c, prob);
+		for(i= 0; i<8; i++) fprintf(file, "%d ", state[i]);
+		fprintf(file, "\n");
 		fclose(file);
 	}
 	return 0;
@@ -63,6 +66,7 @@ int state_cal(int row, int col, int type)
 		col += c;
 		if(row < 0 || row >= TAB_MAX || col < 0 || col >= TAB_MAX)
 		{
+			//printf("%d : %d %d no data\n", type, row, col);
 			result =  result | flag; //flag means there is end of the table
 			break;
 		}
@@ -74,18 +78,18 @@ int state_cal(int row, int col, int type)
 }
 double tab_lookup(int state)
 {
+	int i;
+	int search = 81, flag = 0x0800;
 	double result = 0;
 	double win, num;
 	if((state & 0x0000ff00) != 0)
 	{
-		int i;
-		int flag = 0x0800;
-		int search = 81;
 		while((state & flag) == 0)
 		{
 			flag = flag >> 1;
 			search /= 3;
 		}
+		state ^= flag;
 		for(i=state; i<state+search; i++)
 		{
 			win = (double)s_win[i];
@@ -110,15 +114,18 @@ int win_prob()
 	int mem_r, mem_c;
 	double mem_val;
 	int result;
+	int tmp_state[8] = {0, }, mem_state[8] = {0, };
 	mem_val = -1;
 	for(i=0; i<TAB_MAX; i++)
 	{
 		for(j=0; j<TAB_MAX; j++)
 		{
+			if(tab[i][j] != 0) continue;
 			prob[i][j] = 0;
 			for(k=0; k<8; k++)
 			{
 				state = state_cal(i, j, k);
+				tmp_state[k] = state;
 				prob[i][j] += tab_lookup(state);
 			}
 			prob[i][j] /= 8;
@@ -127,13 +134,14 @@ int win_prob()
 				mem_val = prob[i][j];
 				mem_r = i;
 				mem_c = j;
+				for(k=0; k<8; k++) mem_state[k] = tmp_state[k];
 			}
 		}
 	}
 	result = mem_r;
 	result = result << 8;
 	result = result | mem_c;
-	if(log_write(mem_r, mem_c, mem_val)) perror("log write error");
+	if(log_write(mem_r, mem_c, mem_val, mem_state)) perror("log write error");
 	return result;
 }
 int play(char current[][TAB_MAX])

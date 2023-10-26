@@ -165,7 +165,8 @@ void update(int cnt, int winner)
 int main(int argc, char *argv[])
 {
 	int learn_num;
-	if(argc == 2 && 0 < atoi(argv[1]) && atoi(argv[1]) < 100000) learn_num = atoi(argv[1]);
+	int a = atoi(argv[1]);
+	if(argc == 2 && 0 < a  && a < 100000) learn_num = a;
 	else learn_num = 1000;
 	FILE * file = fopen("./data/log.txt", "w");
 	fclose(file);
