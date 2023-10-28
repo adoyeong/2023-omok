@@ -1,15 +1,14 @@
 #Makefile
 
-all: test data
+all: omok data
 
 data :
 	mkdir ./data
 
-test: main.c model.c
-	gcc main.c model.c -o test
+omok: main.c model.c omok_learn.c
+	gcc main.c omok_learn.c model.c -o omok
 
 clean:
 	rm -f *.o
-	rm -f test
-	rm -f -r ./data
+	rm -f omok
 
