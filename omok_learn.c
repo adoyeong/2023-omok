@@ -236,6 +236,7 @@ int battle_p(int opt, int t)
         int turn = 2;
         int ref = 0;
         int cnt = 0;
+	int invalid_cnt = 0;
         int row, col, i, j;
         memset(tab, 0, sizeof(tab));
         log_reset(0);
@@ -244,28 +245,35 @@ int battle_p(int opt, int t)
 		clear_tab();
 		turn = (turn ^ 0x03);
 		cnt++;
-		fprintf(stdout, "################<%d>##############\n", cnt);
+		//fprintf(stdout, "################<%d>##############\n", cnt);
 		if(turn == t)
 		{
 			fprintf(stdout, "\n    ");
-			for(i=0; i<TAB_MAX; i++) fprintf(stdout, "[%2d] ", i);
+			for(i=0; i<TAB_MAX; i++) fprintf(stdout, "[%2d]| ", i);
 			for(i=0; i<TAB_MAX; i++)
 			{
-				fprintf(stdout, "\n[%2d] ", i);
+				fprintf(stdout, "\n-----------------------------------------------------------------------------------------------\n[%2d] ", i);
 				for(j=0; j<TAB_MAX; j++)
 				{
-					if(tab[i][j] == 0) fprintf(stdout, ".    ");
-					else fprintf(stdout, "%d    ", tab[i][j]);
+					if(tab[i][j] == 0) fprintf(stdout, "   |  ");
+					else fprintf(stdout, "%d  |  ", tab[i][j]);
 				}
 			}
 			if(inv == 1) fprintf(stdout, "danger : %lf",mem_val);
 			else fprintf(stdout, "opportunity : %lf", mem_val);
 			fprintf(stdout, "\n\nyour turn : ");
 			fscanf(stdin, "%d %d", &row, &col);
-			while(tab[row][col] != 0)
+			invalid_cnt = 0;
+			while(tab[row][col] != 0 && invalid_cnt < 10)
 			{
+				invalid_cnt++;
 				fprintf(stdout, "Invalid!\nyour turn : ");
 				fscanf(stdin, "%d %d", &row, &col);
+			}
+			if(invalid_cnt >= 10)
+			{
+				fprintf(stdout, "\nError\n");
+				return 1;
 			}
 		}
 		else
